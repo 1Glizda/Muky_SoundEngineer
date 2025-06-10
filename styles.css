@@ -1,0 +1,198 @@
+@font-face {
+  font-family: 'SF Mono Regular';
+  src: url('./assets/fonts/SFMono-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SF Mono Bold';
+  src: url('./assets/fonts/SF-Mono-Bold.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.regular {
+  font-family: 'SF Mono Regular', monospace;
+}
+
+.bold {
+  font-family: 'SF Mono Bold', monospace;
+}
+
+body {
+  margin: 0;
+  font-family: 'SF Mono Regular', monospace;
+  background: #f7f6f3;
+  color: #000;
+  cursor: default;
+}
+
+/* Click Animation */
+.click-effects {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.click-effect {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.effect-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 2px;
+  background: #FAB617;
+  transform-origin: left center;
+  transform: rotate(var(--angle)) translateX(10px);
+  animation: drawLine 0.4s ease-out forwards;
+  animation-delay: calc(var(--delay) * 0.05s);
+}
+
+@keyframes drawLine {
+  0% { width: 0; opacity: 0; }
+  1% { opacity: 1; }
+  100% { width: 25px; opacity: 1; }
+}
+
+.click-effect.fade-out {
+  opacity: 0;
+}
+
+/* Layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.divider {
+  height: 1px;
+  background: #000;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #f7f6f3;
+  padding: 2rem 1rem;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  width: 33vw;
+  max-width: 300px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+  margin-top: 6rem;
+}
+
+.sidebar li {
+  margin: 1rem 0;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: black;
+  font-size: xx-large;
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.sidebar a:hover {
+  transform: translateX(5px);
+  color: #555;
+}
+
+.main {
+  flex: 1;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  background: #f7f6f3;
+  z-index: 100;
+}
+
+header h1 {
+  text-align: center;
+  height: 15%;
+  padding-bottom: 0;
+  font-size: xx-large;
+}
+
+header h1 strong  {
+  src: url('./assets/fonts/SF-Mono-Bold.woff2') format('woff2');
+}
+
+section {
+  margin-bottom: 4rem;
+}
+
+h2 {
+  font-size: xx-large;
+  border-bottom: none;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  padding: 10px;
+  text-align: center;
+}
+
+p {
+  padding: 10px;
+}
+
+#contact {
+  padding-bottom: 65vh; /* Adds scrollable space after contact section */
+}
+
+/* Photo Sidebar */
+.photo-sidebar {
+  width: 33vw;
+  max-width: 300px;
+  height: 100vh; /* Full viewport height */
+  position: sticky;
+  top: 0;
+  border-left: 1px solid #ccc;
+  background: #f7f6f3;
+  overflow: hidden;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.photo-sidebar:hover {
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.photo-roll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.photo-roll img {
+  width: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
