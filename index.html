@@ -4,33 +4,612 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mihai Pelin Sound Engineer</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    @font-face {
+      font-family: 'SF Mono Regular';
+      src: url('./assets/fonts/SFMono-Regular.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'SF Mono Bold';
+      src: url('./assets/fonts/SF-Mono-Bold.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    :root {
+      --primary-color: #FAB617;
+      --text-color: #121212;
+      --bg-color: #f7f6f3;
+      --accent-color: #1e1e1e;
+      --divider-color: rgba(0,0,0,0.15);
+      --transition-speed: 0.4s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .regular {
+      font-family: 'SF Mono Regular', monospace;
+    }
+
+    .bold {
+      font-family: 'SF Mono Bold', monospace;
+      letter-spacing: -1px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'SF Mono Regular', monospace;
+      background: var(--bg-color);
+      color: var(--text-color);
+      cursor: default;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Click Animation */
+    .click-effects {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .click-effect {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      transition: opacity 0.3s ease-out;
+    }
+
+    .effect-line {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--primary-color);
+      transform-origin: left center;
+      transform: rotate(var(--angle)) translateX(10px);
+      animation: drawLine 0.4s ease-out forwards;
+      animation-delay: calc(var(--delay) * 0.05s);
+    }
+
+    @keyframes drawLine {
+      0% { width: 0; opacity: 0; }
+      1% { opacity: 1; }
+      100% { width: 25px; opacity: 1; }
+    }
+
+    .click-effect.fade-out {
+      opacity: 0;
+    }
+
+    /* Layout */
+    .container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--divider-color);
+      margin: 2rem auto;
+      width: 85%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .divider::after {
+      content: '';
+      position: absolute;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--primary-color);
+      animation: slideDivider 1.5s ease-in-out;
+    }
+
+    @keyframes slideDivider {
+      0% { left: -100%; }
+      50% { left: 0; }
+      100% { left: 100%; }
+    }
+
+    
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-color);
+      border-right: 1px solid var(--divider-color);
+      border-left: 1px solid var(--divider-color);
+      width: 33vw;
+      max-width: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.03);
+      z-index: 100;
+      transition: all var(--transition-speed) ease;
+      scrollbar-width: thin;
+    }
+    
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .sidebar::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb {
+      background-color: var(--divider-color);
+      border-radius: 3px;
+    }
+
+    .sidebar:hover {
+      box-shadow: 5px 0 25px rgba(0,0,0,0.08);
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      text-align: center;
+    }
+
+    .sidebar li {
+      margin: 2rem 0;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+      animation-delay: calc(var(--item-index) * 0.15s);
+    }
+
+    @keyframes fadeIn {
+      from { 
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      display: inline-block;
+      position: relative;
+      padding: 0.5rem 1rem;
+      transition: all var(--transition-speed) ease;
+      letter-spacing: 2px;
+    }
+
+    .sidebar a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 50%;
+      background-color: var(--primary-color);
+      transition: all var(--transition-speed) ease;
+    }
+
+    .sidebar a:hover {
+      transform: translateY(-3px);
+      color: var(--accent-color);
+    }
+
+    .sidebar a:hover::after {
+      width: 80%;
+      left: 10%;
+    }
+
+    .main {
+      flex: 1;
+      padding: 0 3vw;
+      max-width: 100%;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(247, 246, 243, 0.95);
+      backdrop-filter: blur(5px);
+      padding: 2rem 0 1rem;
+      transition: all var(--transition-speed) ease;
+    }
+
+    header.scrolled {
+      padding: 1rem 0 0.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    header h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      padding-bottom: 1rem;
+      transform: translateY(0);
+      transition: all var(--transition-speed) ease;
+    }
+
+    header.scrolled h1 {
+      font-size: 2rem;
+    }
+
+    header h1 .bold {
+      display: inline-block;
+      position: relative;
+      color: var(--accent-color);
+      margin: 0 0.5rem;
+    }
+
+    header h1 .bold::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--primary-color);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform var(--transition-speed) ease;
+    }
+
+    header:hover h1 .bold::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    section {
+      margin: 4rem 0 6rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+      padding: 0 2rem;
+      position: relative;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 2rem;
+      width: 5px;
+      height: 0;
+      background: var(--primary-color);
+      transition: height 1s ease;
+    }
+
+    section.visible::before {
+      height: calc(100% - 4rem);
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin: 2rem 0;
+      padding: 1rem 0;
+      text-align: left;
+      position: relative;
+      display: inline-block;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--primary-color);
+    }
+
+    p {
+      padding: 0;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+      max-width: 800px;
+    }
+
+    #contact {
+      padding-bottom: 20vh;
+    }
+
+    #contact a {
+      color: var(--accent-color);
+      text-decoration: none;
+      position: relative;
+      transition: color var(--transition-speed) ease;
+    }
+
+    #contact a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--primary-color);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform var(--transition-speed) ease;
+    }
+
+    #contact a:hover {
+      color: var(--primary-color);
+    }
+
+    #contact a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    /* Photo Sidebar */
+    .photo-sidebar {
+      width: 33vw;
+      max-width: 300px;
+      height: 100vh;
+      overflow-y: scroll;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      border-left: 1px solid var(--divider-color);
+      box-shadow: -5px 0 15px rgba(0,0,0,0.03);
+      transition: all var(--transition-speed) ease;
+      position: sticky;
+      display:inline
+    }
+
+    .photo-sidebar:hover {
+      box-shadow: -5px 0 25px rgba(0,0,0,0.08);
+    }
+
+    /* Ensure full photo roll is visible */
+    .photo-sidebar .photo-roll {
+      padding-bottom: 40vh; /* Adds extra space at bottom to ensure scrolling works */
+    }
+
+    .photo-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .photo-sidebar::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+
+    .photo-sidebar::-webkit-scrollbar-thumb {
+      background-color: var(--divider-color);
+      border-radius: 3px;
+    }
+
+    .photo-roll {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 2rem 1rem;
+    }
+
+    .photo-roll img {
+      width: 100%;
+      border-radius: 4px;
+      object-fit: cover;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all var(--transition-speed) ease;
+      transform: scale(1);
+      filter: grayscale(30%);
+    }
+
+    .photo-roll img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      filter: grayscale(0%);
+    }
+
+    /* Audio wave animation on hover for header */
+    .waveform {
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      height: 10px;
+      width: 60%;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    header:hover .waveform {
+      opacity: 1;
+    }
+
+    .wave-bar {
+      width: 3px;
+      background-color: var(--primary-color);
+      margin: 0 2px;
+      border-radius: 1px;
+      animation: sound 0.5s linear infinite alternate;
+    }
+
+    @keyframes sound {
+      0% {
+        height: 2px;
+      }
+      100% {
+        height: 10px;
+      }
+    }
+
+    .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.5s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(7) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(8) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(9) { animation-delay: 0.1s; }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .sidebar, .photo-sidebar {
+        width: 250px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar, .photo-sidebar {
+        width: 100%;
+        max-width: none;
+        height: auto;
+        border: none;
+        border-bottom: 1px solid var(--divider-color);
+        }
+
+        .photo-sidebar {
+        position: static;
+        }
+
+        .sidebar {
+        position: sticky;
+        }
+      
+      .sidebar ul {
+        display: flex;
+        justify-content: space-around;
+        padding: 1rem 0;
+      }
+      
+      .sidebar li {
+        margin: 0;
+      }
+      
+      .photo-roll {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+    }
+
+    /* Page load animation */
+    .fade-in {
+      animation: fadeInPage 1.2s ease forwards;
+    }
+
+    @keyframes fadeInPage {
+      from { 
+        opacity: 0;
+      }
+      to { 
+        opacity: 1;
+      }
+    }
+
+    /* Cursor custom styling */
+    .custom-cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      transition: width 0.3s, height 0.3s, background 0.3s;
+    }
+
+    .cursor-dot {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 10000;
+      transition: transform 0.1s;
+    }
+
+    a:hover ~ .custom-cursor,
+    button:hover ~ .custom-cursor {
+      width: 40px;
+      height: 40px;
+      background: rgba(250, 182, 23, 0.1);
+    }
+  </style>
 </head>
-<body>
+<body class="fade-in">
+  <div class="custom-cursor"></div>
+  <div class="cursor-dot"></div>
   <div class="click-effects"></div>
+  
   <div class="container">
     <nav class="sidebar">
       <ul>
-        <li><a href="#home">HOME</a></li>
-        <li><a href="#work">WORK</a></li>
-        <li><a href="#gear">GEAR</a></li>
-        <li><a href="#contact">CONTACT</a></li>
+        <li style="--item-index: 1"><a href="#home">HOME</a></li>
+        <li style="--item-index: 2"><a href="#work">WORK</a></li>
+        <li style="--item-index: 3"><a href="#gear">GEAR</a></li>
+        <li style="--item-index: 4"><a href="#contact">CONTACT</a></li>
       </ul>
     </nav>
 
     <div class="main">
-      <header>
+      <header id="header">
         <h1>
           <span class="regular">MIHAI</span>
-          <span class="bold">“MUKY”</span>
+          <span class="bold">"MUKY"</span>
           <span class="regular">PELIN</span>
+          <div class="waveform">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
         </h1>
         <div class="divider"></div>
       </header>
 
       <section id="home">
-        <h2>HOME</h2>
-        <p>Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.  Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.</p>
+        <h2 class="regular">HOME</h2>
+        <p>Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.</p>
+        <p>Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.  Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers. Welcome to my world of sound. I'm Mihai "Muky" Pelin, a sound engineer crafting audio experiences for artists, filmmakers, and storytellers.</p>
       </section>
       <div class="divider"></div>
 
@@ -49,6 +628,7 @@
       <section id="contact">
         <h2 class="regular">CONTACT</h2>
         <p>Let's work together! Email me at <a href="mailto:your.email@example.com">your.email@example.com</a>.</p>
+        <p>Si telefon</p>
       </section>
       <div class="divider"></div>
     </div>
@@ -71,7 +651,120 @@
     </nav>
   </div>
 
-  <script src="click-animation.js"></script>
+  <script>
+    // Intersection Observer for scroll animations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize sections animation
+      const sections = document.querySelectorAll('section');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+
+      // Header scroll effect
+      const header = document.getElementById('header');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // Custom cursor
+      const cursor = document.createElement('div');
+      cursor.classList.add('custom-cursor');
+      const cursorDot = document.createElement('div');
+      cursorDot.classList.add('cursor-dot');
+      document.body.appendChild(cursor);
+      document.body.appendChild(cursorDot);
+
+      document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
+      });
+
+      document.addEventListener('mousedown', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        cursorDot.style.transform = 'translate(-50%, -50%) scale(0.5)';
+      });
+
+      document.addEventListener('mouseup', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+      });
+
+      // Click animation
+      document.addEventListener('click', function(e) {
+         // Prevent animation if the clicked element is a sidebar item
+        const isSidebarItemClick =
+            e.target.closest(".sidebar") &&
+            (e.target.closest("a") || e.target.closest("button") || e.target.closest(".sidebar-item"));
+
+        if (isSidebarItemClick) return;
+
+        const effectsContainer = document.querySelector('.click-effects');
+        const clickEffect = document.createElement('div');
+        clickEffect.classList.add('click-effect');
+        
+        clickEffect.style.left = e.pageX + 'px';
+        clickEffect.style.top = e.pageY + 'px';
+        
+        effectsContainer.appendChild(clickEffect);
+        
+        // Create lines in all directions
+        const numLines = 10;
+        for (let i = 0; i < numLines; i++) {
+          const line = document.createElement('div');
+          line.classList.add('effect-line');
+          
+          const angle = (360 / numLines) * i;
+          line.style.setProperty('--angle', angle + 'deg');
+          line.style.setProperty('--delay', i);
+          
+          clickEffect.appendChild(line);
+        }
+        
+        // Remove the effect after animation completes
+        setTimeout(() => {
+          clickEffect.classList.add('fade-out');
+          setTimeout(() => {
+            effectsContainer.removeChild(clickEffect);
+          }, 300);
+        }, 800);
+      });
+
+      // Smooth scrolling for navigation links with alignment
+      document.querySelectorAll('.sidebar a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+          
+          if (targetSection) {
+            const h2 = targetSection.querySelector('h2');
+            const linkRect = this.getBoundingClientRect();
+            const h2Rect = h2.getBoundingClientRect();
+            
+            const targetScrollPosition = window.scrollY + h2Rect.top - linkRect.top + 10;
+            
+            window.scrollTo({
+              top: targetScrollPosition,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>
-
